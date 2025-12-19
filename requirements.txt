@@ -1,1 +1,3 @@
-djangopython manage.py runserver
+django
+djangorestframework
+django-cors-headers
