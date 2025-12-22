@@ -42,6 +42,14 @@ INSTALLED_APPS = [
     'corsheaders'
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+AUTH_USER_MODEL = 'backend.User'
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -121,6 +129,6 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173/", # Porta padrão do Vite (React)
-    "http://localhost:3000/", # Porta padrão do Create React App
+    "http://localhost:5173", # Porta padrão do Vite (React)
+    "http://localhost:3000", # Porta padrão do Create React App
 ]
