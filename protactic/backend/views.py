@@ -1,5 +1,10 @@
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+
+from .navigation import build_navigation_for_user
 
 class CustomTokenSerializer(TokenObtainPairSerializer):
     def validate(self, attrs):
@@ -13,3 +18,18 @@ class CustomTokenSerializer(TokenObtainPairSerializer):
 
 class LoginView(TokenObtainPairView):
     serializer_class = CustomTokenSerializer
+
+class NavigationView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        u = request.user
+        data = {
+            "user": {
+                "username": u.username,
+                "user_type": getattr(u, "user_type", None),
+                "is_superuser": u.is_superuser,
+            },
+            "items": build_navigation_for_user(u),
+        }
+        return Response(data)

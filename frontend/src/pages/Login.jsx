@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { api } from "../services/api";
+import { fetchNavigation } from "../services/navigation";
 import { User, Lock, Eye, EyeOff, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import logoImg from "../assets/logo-protactic.png";
@@ -29,10 +30,12 @@ export default function Login() {
       localStorage.setItem("token", access);
       localStorage.setItem("user_type", user_type);
 
-      if (user_type === "ADMIN") {
-        window.location.href = "/admin";
+      const nav = await fetchNavigation();
+
+      if (nav.user.is_superuser) {
+        navigate("/registro", { replace: true });
       } else {
-        window.location.href = "/treinador";
+        navigate("/inicio", { replace: true });
       }
     } catch (err) {
       console.error(err);
