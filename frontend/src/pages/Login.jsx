@@ -31,12 +31,9 @@ export default function Login() {
       localStorage.setItem("user_type", user_type);
 
       const nav = await fetchNavigation();
-
-      if (nav.user.is_superuser) {
-        navigate("/registro", { replace: true });
-      } else {
-        navigate("/inicio", { replace: true });
-      }
+      console.log("NAV:", nav);
+      navigate("/inicio", { replace: true });
+      
     } catch (err) {
       console.error(err);
       setError("Credenciais inválidas. Tente novamente.");

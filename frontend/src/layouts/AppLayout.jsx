@@ -2,8 +2,42 @@ import { useEffect, useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { fetchNavigation } from "../services/navigation";
 
+import { Home, Users, Target, Activity, Building, Shield } from "lucide-react";
+
+const ICONS = {
+  home: Home,
+  users: Users,
+  target: Target,
+  activity: Activity,
+  building: Building,
+  shield: Shield,
+};
+
+function SidebarItem({ item }) {
+  const Icon = ICONS[item.icon] || Home;
+
+  return (
+    <NavLink
+      to={item.path}
+      className={({ isActive }) =>
+        [
+          "flex items-center gap-3 px-4 py-3 rounded-xl transition-colors",
+          "text-slate-300 hover:text-white hover:bg-slate-800/60",
+          isActive
+            ? "bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-500/40"
+            : "",
+        ].join(" ")
+      }
+    >
+      <Icon className="w-5 h-5" />
+      <span className="text-sm">{item.label}</span>
+    </NavLink>
+  );
+}
+
 export default function AppLayout() {
   const [nav, setNav] = useState(null);
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -12,50 +46,81 @@ export default function AppLayout() {
     async function load() {
       try {
         const data = await fetchNavigation();
-        if (mounted) setNav(data);
+        if (!mounted) return;
+        setNav(data);
       } catch (err) {
-        console.error("Erro ao carregar navegação:", err);
-        
+        // NÃO redireciona ainda: vamos mostrar o erro pra você ver o que é
+        const status = err?.response?.status;
+        const msg =
+          status
+            ? `Falha ao carregar /navigation/. Status: ${status}`
+            : `Falha ao carregar /navigation/. ${err?.message || "Erro desconhecido"}`;
+
+        console.error("Navigation error:", err);
+        if (mounted) setError(msg);
       } finally {
         if (mounted) setLoading(false);
       }
     }
 
     load();
-    return () => (mounted = false);
+    return () => {
+      mounted = false;
+    };
   }, []);
 
-  if (loading) return <div>Carregando...</div>;
-  if (!nav) return <div>Sem navegação (falha ao carregar)</div>;
-
+  // Base screen sempre visível
   return (
-    <div style={{ display: "flex", minHeight: "100vh" }}>
+    <div className="min-h-screen bg-[#020617] text-white flex">
       {/* Sidebar */}
-      <aside style={{ width: 240, padding: 16, borderRight: "1px solid #ddd" }}>
-        <div style={{ marginBottom: 16 }}>
-          <strong>PROTACTIC</strong>
-          <div style={{ fontSize: 12 }}>{nav.user.username}</div>
+      <aside className="w-[320px] border-r border-slate-800/60 bg-[#020617]">
+        <div className="px-6 pt-6 pb-5 border-b border-slate-800/60">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-xl bg-emerald-500/15 ring-1 ring-emerald-500/30 flex items-center justify-center">
+              <span className="text-emerald-400 font-bold">PT</span>
+            </div>
+
+            <div className="leading-tight">
+              <div className="text-lg font-semibold tracking-wide">PROTACTIC</div>
+              <div className="text-xs text-slate-400">Assistente Técnico</div>
+            </div>
+          </div>
         </div>
 
-        <nav style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          {nav.items.map((item) => (
-            <NavLink
-              key={item.key}
-              to={item.path}
-              style={({ isActive }) => ({
-                textDecoration: "none",
-                fontWeight: isActive ? "700" : "400",
-              })}
-            >
-              {item.label}
-            </NavLink>
+        <nav className="px-4 py-5 flex flex-col gap-2">
+          {loading && (
+            <div className="text-slate-400 text-sm px-4">Carregando menu...</div>
+          )}
+
+          {error && (
+            <div className="mx-2 p-3 rounded-lg border border-red-500/40 bg-red-500/10 text-red-200 text-xs">
+              {error}
+              <div className="mt-2 text-slate-300">
+                Dica: confira se o backend está em{" "}
+                <span className="font-mono">http://127.0.0.1:8000</span> e se o
+                token está sendo enviado.
+              </div>
+            </div>
+          )}
+
+          {/* Se nav existir, renderiza itens */}
+          {nav?.items?.map((item) => (
+            <SidebarItem key={item.key} item={item} />
           ))}
         </nav>
       </aside>
 
       {/* Conteúdo */}
-      <main style={{ flex: 1, padding: 16 }}>
-        <Outlet />
+      <main className="flex-1 bg-[#020617]">
+        <div className="min-h-screen px-10 py-8">
+          {/* Se não houver nav, ainda mostra algo */}
+          {!loading && !nav && (
+            <div className="text-slate-300">
+              Não consegui carregar a navegação. Veja o erro na sidebar.
+            </div>
+          )}
+          <Outlet />
+        </div>
       </main>
     </div>
   );
