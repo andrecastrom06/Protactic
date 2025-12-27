@@ -4,6 +4,13 @@ import AppLayout from "./layouts/AppLayout";
 import Login from "./pages/Login";
 import Sobre from "./pages/Sobre";
 import Registro from "./pages/Registro";
+import RegistroJogadores from "./pages/RegistroJogadores";
+import Inicio from "./pages/Inicio";
+import Elenco from "./pages/Elenco";
+import Adversario from "./pages/Adversario";
+import TempoReal from "./pages/TempoReal";
+import Clube from "./pages/Clube";
+
 import "./index.css"
 
 function Admin() {
@@ -13,12 +20,6 @@ function Admin() {
 function Treinador() {
   return <h1>Área do Treinador</h1>;
 }
-
-function Inicio() { return <h1>Início</h1>; }
-function Elenco() { return <h1>Central do Elenco</h1>; }
-function Adversario() { return <h1>Adversário</h1>; }
-function TempoReal() { return <h1>Tempo Real</h1>; }
-function Clube() { return <h1>Clube</h1>; }
 
 export default function App() {
   return (
@@ -34,6 +35,7 @@ export default function App() {
           <Route path="/tempo-real" element={<TempoReal />} />
           <Route path="/clube" element={<Clube />} />
           <Route path="/registro" element={<Registro />} />
+          <Route path="/registro/jogadores" element={<RegistroJogadores />} />
         </Route>
 
         <Route path="/admin" element={<Admin />} />
