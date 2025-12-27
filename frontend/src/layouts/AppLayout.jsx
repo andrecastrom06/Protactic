@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { fetchNavigation } from "../services/navigation";
 
-import { Home, Users, Target, Activity, Building, Shield } from "lucide-react";
+import { Home, Users, Target, Activity, Building, Shield, LogOut } from "lucide-react";
 
 const ICONS = {
   home: Home,
@@ -40,6 +40,12 @@ export default function AppLayout() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
 
+  function handleLogout() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user_type");
+    window.location.href = "/";
+}
+
   useEffect(() => {
     let mounted = true;
 
@@ -73,7 +79,7 @@ export default function AppLayout() {
   return (
     <div className="min-h-screen bg-[#020617] text-white flex">
       {/* Sidebar */}
-      <aside className="w-[320px] border-r border-slate-800/60 bg-[#020617]">
+      <aside className="w-[320px] border-r border-slate-800/60 bg-[#01040f] flex flex-col">
         <div className="px-6 pt-6 pb-5 border-b border-slate-800/60">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-xl bg-emerald-500/15 ring-1 ring-emerald-500/30 flex items-center justify-center">
@@ -108,6 +114,18 @@ export default function AppLayout() {
             <SidebarItem key={item.key} item={item} />
           ))}
         </nav>
+        
+        {/* Botão Sair */}
+            <div className="mt-auto p-4">
+            <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:text-white hover:bg-red-500/10 transition"
+            >
+                <LogOut className="w-5 h-5" />
+                <span className="font-medium">Sair</span>
+            </button>
+            </div>
+
       </aside>
 
       {/* Conteúdo */}

@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Search, SlidersHorizontal, UserPlus, Trophy } from "lucide-react";
+import { Search, SlidersHorizontal, UserPlus, Trophy, Building2 } from "lucide-react";
 
 export default function Registro() {
   const navigate = useNavigate();
@@ -36,7 +36,7 @@ export default function Registro() {
         </button>
       </div>
 
-      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Card - Jogadores */}
         <button
           type="button"
@@ -56,10 +56,36 @@ export default function Registro() {
                 Adicione atletas com informações básicas e status.
               </p>
               <div className="mt-4 text-sm text-emerald-300 group-hover:text-emerald-200">
-                Abrir cadastro →
+                Abrir registro →
               </div>
             </div>
           </div>
+        </button>
+
+        {/* Card - Clube */}
+        <button
+        type="button"
+        onClick={() => navigate("/registro/clube")}
+        className="text-left bg-[#0b1220] border border-slate-800 rounded-2xl p-5 hover:bg-slate-900/30 transition"
+        >
+        <div className="flex items-start gap-4">
+            <div className="w-11 h-11 rounded-xl bg-indigo-500/15 ring-1 ring-indigo-500/25 flex items-center justify-center">
+            <Building2 className="w-5 h-5 text-indigo-300" />
+            </div>
+
+            <div className="flex-1">
+            <h2 className="text-lg font-semibold text-white">
+                Registrar Clube
+            </h2>
+            <p className="text-sm text-slate-400 mt-1">
+                Cadastre clubes e informações institucionais.
+            </p>
+
+            <div className="mt-4 text-sm text-emerald-300 group-hover:text-emerald-200">
+                Abrir registro →
+            </div>
+            </div>
+        </div>
         </button>
 
         {/* Card - Competições */}

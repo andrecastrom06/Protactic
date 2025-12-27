@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import Sobre from "./pages/Sobre";
 import Registro from "./pages/Registro";
 import RegistroJogadores from "./pages/RegistroJogadores";
+import RegistroClube from "./pages/RegistroClube";
 import Inicio from "./pages/Inicio";
 import Elenco from "./pages/Elenco";
 import Adversario from "./pages/Adversario";
@@ -36,6 +37,7 @@ export default function App() {
           <Route path="/clube" element={<Clube />} />
           <Route path="/registro" element={<Registro />} />
           <Route path="/registro/jogadores" element={<RegistroJogadores />} />
+          <Route path="/registro/clube" element={<RegistroClube />} />
         </Route>
 
         <Route path="/admin" element={<Admin />} />
