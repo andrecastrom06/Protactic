@@ -9,3 +9,10 @@ class NavItemSerializer(serializers.Serializer):
 class NavResponseSerializer(serializers.Serializer):
     user = serializers.DictField()
     items = NavItemSerializer(many=True)
+
+from .models import Clube
+
+class ClubeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Clube
+        fields = '__all__'

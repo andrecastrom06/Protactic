@@ -11,3 +11,12 @@ class User(AbstractUser):
         max_length=10,
         choices=USER_TYPE_CHOICES
     )
+
+class Clube(models.Model):
+    nome = models.CharField(max_length=100)
+    pais = models.CharField(max_length=50)
+    ano_fundacao = models.IntegerField()
+    escudo = models.ImageField(upload_to='escudos/', blank=True, null=True)
+
+    def __str__(self):
+        return self.nome

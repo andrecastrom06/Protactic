@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { ImagePlus, Plus, X } from "lucide-react";
+import { api } from "../services/api";
 
 export default function RegistroClube() {
   // futuramente isso vem do backend
@@ -9,6 +10,7 @@ export default function RegistroClube() {
   );
 
   const [escudoPreview, setEscudoPreview] = useState(null);
+  const [escudoFile, setEscudoFile] = useState(null);
 
   const [nomeClube, setNomeClube] = useState("");
   const [pais, setPais] = useState("");
@@ -21,6 +23,7 @@ export default function RegistroClube() {
   function handlePickImage(e) {
     const file = e.target.files?.[0];
     if (!file) return;
+    setEscudoFile(file);
     const url = URL.createObjectURL(file);
     setEscudoPreview(url);
   }
@@ -37,16 +40,41 @@ export default function RegistroClube() {
     setCompeticoes((prev) => prev.filter((c) => c !== nome));
   }
 
-  function handleRegistrar() {
-    console.log("RegistroClube (mock):", {
-      nomeClube,
-      pais,
-      anoFundacao,
-      competicoes,
-      escudoPreview,
-    });
+  async function handleRegistrar() {
+    try {
+        const formData = new FormData();
+        formData.append("nome", nomeClube);
+        formData.append("pais", pais);
+        formData.append("ano_fundacao", anoFundacao);
+        
+        if (escudoFile) {
+            formData.append("escudo", escudoFile);
+        }
 
-    alert("Por enquanto, o cadastro não salva no banco. (Em breve)");
+        // Note: Backend might not support arrays in FormData directly without specific handling,
+        // or we need a separate model for Competitions. For now we just send the club data.
+        // If you need to send competitions, you might need to stringify it or append multiple times.
+        // formData.append("competicoes", JSON.stringify(competicoes));
+
+        await api.post("/clubes/", formData, {
+            headers: {
+                "Content-Type": "multipart/form-data",
+            },
+        });
+
+        alert("Clube registrado com sucesso!");
+        // Reset form
+        setNomeClube("");
+        setPais("");
+        setAnoFundacao("");
+        setCompeticoes([]);
+        setEscudoPreview(null);
+        setEscudoFile(null);
+
+    } catch (error) {
+        console.error("Erro ao registrar clube:", error);
+        alert("Erro ao registrar clube. Verifique o console.");
+    }
   }
 
   return (
