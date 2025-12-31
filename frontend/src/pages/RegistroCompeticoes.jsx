@@ -103,9 +103,9 @@ export default function RegistroCompeticoes() {
             rounded-2xl
             p-6
             flex flex-col
-            justify-center
             space-y-6
-        ">
+        "
+        >
         <h2 className="text-2xl md:text-3xl font-semibold text-slate-200 text-center">
             Premiação
         </h2>
@@ -116,6 +116,7 @@ export default function RegistroCompeticoes() {
             label="Premiação em dinheiro"
             onChange={(e) => setPremioDinheiro(e.target.checked)}
         />
+
         {premioDinheiro && (
             <Field
             label="Valor monetário"
@@ -128,6 +129,7 @@ export default function RegistroCompeticoes() {
             label="Garante vaga em outra competição"
             onChange={(e) => setVagaOutra(e.target.checked)}
         />
+
         {vagaOutra && (
             <SelectField label="Competição garantida">
             <option value="" disabled>
