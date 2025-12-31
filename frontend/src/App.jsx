@@ -6,6 +6,7 @@ import Sobre from "./pages/Sobre";
 import Registro from "./pages/Registro";
 import RegistroJogadores from "./pages/RegistroJogadores";
 import RegistroClube from "./pages/RegistroClube";
+import RegistroCompeticoes from "./pages/RegistroCompeticoes";
 import Inicio from "./pages/Inicio";
 import Elenco from "./pages/Elenco";
 import Adversario from "./pages/Adversario";
@@ -38,6 +39,7 @@ export default function App() {
           <Route path="/registro" element={<Registro />} />
           <Route path="/registro/jogadores" element={<RegistroJogadores />} />
           <Route path="/registro/clube" element={<RegistroClube />} />
+          <Route path="/registro/competicoes" element={<RegistroCompeticoes />} />
         </Route>
 
         <Route path="/admin" element={<Admin />} />

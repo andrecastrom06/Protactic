@@ -51,11 +51,6 @@ export default function RegistroClube() {
             formData.append("escudo", escudoFile);
         }
 
-        // Note: Backend might not support arrays in FormData directly without specific handling,
-        // or we need a separate model for Competitions. For now we just send the club data.
-        // If you need to send competitions, you might need to stringify it or append multiple times.
-        // formData.append("competicoes", JSON.stringify(competicoes));
-
         await api.post("/clubes/", formData, {
             headers: {
                 "Content-Type": "multipart/form-data",
