@@ -1,5 +1,6 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { ChevronDown, ImagePlus } from "lucide-react";
+import { api } from "../services/api";
 
 export default function RegistroJogadores() {
   const posicoes = useMemo(
@@ -20,18 +21,92 @@ export default function RegistroJogadores() {
 
   const pernas = useMemo(() => ["Destro", "Canhoto", "Ambidestro"], []);
 
+  const [clubes, setClubes] = useState([]);
   const [fotoPreview, setFotoPreview] = useState(null);
+  const [fotoFile, setFotoFile] = useState(null);
+
+  const [formData, setFormData] = useState({
+    nome: "",
+    cpf: "",
+    idade: "",
+    peso: "",
+    altura: "",
+    nacionalidade: "",
+    clube: "", // ID do clube
+    posicao: "",
+    perna: "",
+  });
+
+  useEffect(() => {
+    async function fetchClubes() {
+      try {
+        const response = await api.get("/clubes/");
+        setClubes(response.data);
+      } catch (error) {
+        console.error("Erro ao buscar clubes:", error);
+      }
+    }
+    fetchClubes();
+  }, []);
 
   function handlePickImage(e) {
     const file = e.target.files?.[0];
     if (!file) return;
     const url = URL.createObjectURL(file);
     setFotoPreview(url);
+    setFotoFile(file);
   }
 
-  function handleRegistrar() {
-    alert("Por enquanto, o cadastro não salva no banco. (Em breve)");
-}
+  function handleInputChange(e) {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  }
+
+  async function handleRegistrar() {
+    try {
+      const data = new FormData();
+      data.append("nome", formData.nome);
+      data.append("cpf", formData.cpf);
+      data.append("idade", formData.idade);
+      data.append("peso", formData.peso);
+      data.append("altura", formData.altura);
+      data.append("nacionalidade", formData.nacionalidade);
+      data.append("clube", formData.clube);
+      data.append("posicao", formData.posicao);
+      data.append("perna", formData.perna);
+
+      if (fotoFile) {
+        data.append("foto", fotoFile);
+      }
+
+      await api.post("/jogadores/", data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      alert("Jogador registrado com sucesso!");
+
+      // Reset form
+      setFormData({
+        nome: "",
+        cpf: "",
+        idade: "",
+        peso: "",
+        altura: "",
+        nacionalidade: "",
+        clube: "",
+        posicao: "",
+        perna: "",
+      });
+      setFotoPreview(null);
+      setFotoFile(null);
+
+    } catch (error) {
+      console.error("Erro ao registrar jogador:", error);
+      alert("Erro ao registrar jogador. Verifique os dados.");
+    }
+  }
 
   return (
     <div className="max-w-5xl">
@@ -66,7 +141,7 @@ export default function RegistroJogadores() {
               )}
             </div>
 
-            {/* Botão escolher da galeria (sem backend, só preview local) */}
+            {/* Botão escolher da galeria */}
             <label className="mt-4 inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#0f172a] border border-slate-800 text-slate-200 hover:bg-slate-800/40 transition cursor-pointer">
               Escolher da Galeria
               <input
@@ -80,10 +155,39 @@ export default function RegistroJogadores() {
 
           {/* Inputs laterais: Idade/Peso/Altura */}
           <div className="mt-6 space-y-4">
-            <Field label="Idade" placeholder="Ex.: 19" type="number" />
-            <Field label="Peso" placeholder="Ex.: 72 (kg)" type="number" />
-            <Field label="Altura" placeholder="Ex.: 1.78 (m)" type="text" />
-            <Field label="Nacionalidade" placeholder="Ex.: Brasileiro" />
+            <Field
+              label="Idade"
+              placeholder="Ex.: 19"
+              type="number"
+              name="idade"
+              value={formData.idade}
+              onChange={handleInputChange}
+            />
+            <Field
+              label="Peso"
+              placeholder="Ex.: 72 (kg)"
+              type="number"
+              step="0.1"
+              name="peso"
+              value={formData.peso}
+              onChange={handleInputChange}
+            />
+            <Field
+              label="Altura"
+              placeholder="Ex.: 1.78 (m)"
+              type="number"
+              step="0.01"
+              name="altura"
+              value={formData.altura}
+              onChange={handleInputChange}
+            />
+            <Field
+              label="Nacionalidade"
+              placeholder="Ex.: Brasileiro"
+              name="nacionalidade"
+              value={formData.nacionalidade}
+              onChange={handleInputChange}
+            />
           </div>
         </div>
 
@@ -91,14 +195,42 @@ export default function RegistroJogadores() {
         <div className="space-y-6">
           {/* Top fields */}
           <div className="bg-[#0b1220] border border-slate-800 rounded-2xl p-5 space-y-4">
-            <Field label="Nome do Jogador" placeholder="Digite nome e sobrenome" />
-            <Field label="CPF" placeholder="000.000.000-00" />
+            <Field
+              label="Nome do Jogador"
+              placeholder="Digite nome e sobrenome"
+              name="nome"
+              value={formData.nome}
+              onChange={handleInputChange}
+            />
+            <Field
+              label="CPF"
+              placeholder="000.000.000-00"
+              name="cpf"
+              value={formData.cpf}
+              onChange={handleInputChange}
+            />
 
-            {/* Select Clube (sem opções por enquanto) */}
-            <SelectField label="Clube" value="" onChange={() => {}}>
+            {/* Select Clube */}
+            <SelectField
+              label="Clube"
+              name="clube"
+              value={formData.clube}
+              onChange={handleInputChange}
+            >
               <option value="" disabled>
-                Não há clubes registrados
+                Selecione o clube
               </option>
+              {clubes.length > 0 ? (
+                clubes.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.nome}
+                  </option>
+                ))
+              ) : (
+                <option value="" disabled>
+                  Não há clubes registrados
+                </option>
+              )}
             </SelectField>
           </div>
 
@@ -112,7 +244,12 @@ export default function RegistroJogadores() {
 
             <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
               {/* Posição */}
-              <SelectField label="Posição" defaultValue="">
+              <SelectField
+                label="Posição"
+                name="posicao"
+                value={formData.posicao}
+                onChange={handleInputChange}
+              >
                 <option value="" disabled>
                   Selecione
                 </option>
@@ -124,7 +261,12 @@ export default function RegistroJogadores() {
               </SelectField>
 
               {/* Perna */}
-              <SelectField label="Perna" defaultValue="">
+              <SelectField
+                label="Perna"
+                name="perna"
+                value={formData.perna}
+                onChange={handleInputChange}
+              >
                 <option value="" disabled>
                   Selecione
                 </option>
@@ -142,14 +284,14 @@ export default function RegistroJogadores() {
             </div>
           </div>
 
-          {/* Botão Registrar (desabilitado por enquanto) */}
+          {/* Botão Registrar */}
           <div className="flex justify-end">
             <button
-                type="button"
-                onClick={handleRegistrar}
-                className="px-8 py-3 rounded-xl bg-emerald-500/20 text-emerald-200 border border-emerald-500/30 hover:bg-emerald-500/25 transition"
-                >
-                Registrar
+              type="button"
+              onClick={handleRegistrar}
+              className="px-8 py-3 rounded-xl bg-emerald-500/20 text-emerald-200 border border-emerald-500/30 hover:bg-emerald-500/25 transition"
+            >
+              Registrar
             </button>
           </div>
         </div>
@@ -160,7 +302,7 @@ export default function RegistroJogadores() {
 
 /* ---------- Componentes auxiliares ---------- */
 
-function Field({ label, placeholder, type = "text" }) {
+function Field({ label, placeholder, type = "text", ...props }) {
   return (
     <div>
       <label className="block text-sm text-slate-300 font-medium mb-2">
@@ -170,6 +312,7 @@ function Field({ label, placeholder, type = "text" }) {
         type={type}
         placeholder={placeholder}
         className="w-full bg-[#0f172a] border border-slate-800 rounded-xl py-3 px-4 text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/20 transition"
+        {...props}
       />
     </div>
   );

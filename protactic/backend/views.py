@@ -42,3 +42,11 @@ class ClubeViewSet(viewsets.ModelViewSet):
     queryset = Clube.objects.all()
     serializer_class = ClubeSerializer
     permission_classes = [IsAuthenticated]
+
+from .models import Jogador
+from .serializers import JogadorSerializer
+
+class JogadorViewSet(viewsets.ModelViewSet):
+    queryset = Jogador.objects.all()
+    serializer_class = JogadorSerializer
+    permission_classes = [IsAuthenticated]

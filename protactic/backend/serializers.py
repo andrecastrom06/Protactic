@@ -16,3 +16,10 @@ class ClubeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Clube
         fields = '__all__'
+
+from .models import Jogador
+
+class JogadorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Jogador
+        fields = '__all__'
