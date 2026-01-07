@@ -1,25 +1,78 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
+import axios from "axios";
 
 export default function RegistroCompeticoes() {
-  const [tamanho, setTamanho] = useState("");
-  const [premioDinheiro, setPremioDinheiro] = useState(false);
-  const [vagaOutra, setVagaOutra] = useState(false);
+  // Estado do formulário
+  const [form, setForm] = useState({
+    nome: "",
+    tamanho: "",
+    localidade: "",
+    tipo_participantes: "",
+    divisao: "",
+    tipo_formato: "",
+    qtd_participantes: "",
+    tem_trofeu: false,
+    tem_premiacao_financeira: false,
+    valor_premiacao: "",
+    garante_vaga: false,
+    competicao_destino: null
+  });
 
-  function handleRegistrar() {
-    alert("Por enquanto, o cadastro não salva no banco. (Em breve)");
+  // Atualiza inputs de texto/select
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+  };
+
+  // Atualiza checkboxes
+  const handleCheckbox = (e) => {
+    const { name, checked } = e.target;
+    setForm({ ...form, [name]: checked });
+  };
+
+  // Envia para o Backend
+  async function handleRegistrar() {
+    try {
+      // 1. Tenta pegar o token do armazenamento local (ajuste a chave 'access' se você salvou com outro nome no login)
+      const token = localStorage.getItem('token'); 
+
+      if (!token) {
+        alert("Erro: Você não está logado!");
+        return;
+      }
+
+      // 2. Configura o cabeçalho com o "Crachá" (Bearer Token)
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      };
+
+      // 3. Envia os dados + a configuração de segurança
+      await axios.post("http://127.0.0.1:8000/competicoes/", form, config);
+      
+      alert("Competição registrada com sucesso!");
+    } catch (error) {
+      console.error(error);
+      if (error.response && error.response.status === 401) {
+          alert("Sessão expirada ou inválida. Faça login novamente.");
+      } else {
+          alert("Erro ao registrar. Verifique o console.");
+      }
+    }
   }
 
+  // Lógica visual da localidade
   const labelLocalidade =
-    tamanho === "Continental"
+    form.tamanho === "Continental"
       ? "Continente"
-      : ["Nacional", "Regional", "Estadual"].includes(tamanho)
+      : ["Nacional", "Regional", "Estadual"].includes(form.tamanho)
       ? "País"
       : "";
 
   return (
     <div className="max-w-6xl">
-      {/* Header */}
       <h1 className="text-3xl md:text-4xl font-semibold tracking-wide">
         Registrar Competições
       </h1>
@@ -30,17 +83,23 @@ export default function RegistroCompeticoes() {
       <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* COLUNA ESQUERDA */}
         <div className="lg:col-span-2 bg-[#0b1220] border border-slate-800 rounded-2xl p-5 space-y-4">
-          <Field label="Nome da Competição" placeholder="Digite o nome" />
+          
+          <Field 
+            label="Nome da Competição" 
+            placeholder="Digite o nome"
+            name="nome"
+            value={form.nome}
+            onChange={handleChange}
+          />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <SelectField
               label="Tamanho"
-              value={tamanho}
-              onChange={(e) => setTamanho(e.target.value)}
+              name="tamanho"
+              value={form.tamanho}
+              onChange={handleChange}
             >
-              <option value="" disabled>
-                Selecione
-              </option>
+              <option value="" disabled>Selecione</option>
               <option>Mundial</option>
               <option>Continental</option>
               <option>Nacional</option>
@@ -51,23 +110,32 @@ export default function RegistroCompeticoes() {
             <Field
               label={labelLocalidade || "Localidade"}
               placeholder={labelLocalidade || "—"}
-              disabled={tamanho === "Mundial" || !labelLocalidade}
+              disabled={form.tamanho === "Mundial" || !labelLocalidade}
+              name="localidade"
+              value={form.localidade}
+              onChange={handleChange}
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <SelectField label="Participantes">
-              <option value="" disabled>
-                Selecione
-              </option>
+            <SelectField 
+                label="Participantes"
+                name="tipo_participantes"
+                value={form.tipo_participantes}
+                onChange={handleChange}
+            >
+              <option value="" disabled>Selecione</option>
               <option>Seleções</option>
               <option>Clubes</option>
             </SelectField>
 
-            <SelectField label="Divisão">
-              <option value="" disabled>
-                Selecione
-              </option>
+            <SelectField 
+                label="Divisão"
+                name="divisao"
+                value={form.divisao}
+                onChange={handleChange}
+            >
+              <option value="" disabled>Selecione</option>
               <option>1ª Divisão</option>
               <option>2ª Divisão</option>
               <option>3ª Divisão</option>
@@ -78,10 +146,13 @@ export default function RegistroCompeticoes() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <SelectField label="Tipo">
-              <option value="" disabled>
-                Selecione
-              </option>
+            <SelectField 
+                label="Tipo"
+                name="tipo_formato"
+                value={form.tipo_formato}
+                onChange={handleChange}
+            >
+              <option value="" disabled>Selecione</option>
               <option>Torneio</option>
               <option>Liga</option>
               <option>Outro</option>
@@ -91,56 +162,59 @@ export default function RegistroCompeticoes() {
               label="Número de Participantes"
               placeholder="Ex.: 20"
               type="number"
+              name="qtd_participantes"
+              value={form.qtd_participantes}
+              onChange={handleChange}
             />
           </div>
         </div>
 
         {/* COLUNA DIREITA */}
-        <div
-        className="
-            bg-[#0b1220]
-            border border-slate-800
-            rounded-2xl
-            p-6
-            flex flex-col
-            space-y-6
-        "
-        >
-        <h2 className="text-2xl md:text-3xl font-semibold text-slate-200 text-center">
+        <div className="bg-[#0b1220] border border-slate-800 rounded-2xl p-6 flex flex-col space-y-6">
+          <h2 className="text-2xl md:text-3xl font-semibold text-slate-200 text-center">
             Premiação
-        </h2>
+          </h2>
 
-        <Checkbox label="Troféu" />
+          <Checkbox 
+            label="Troféu" 
+            name="tem_trofeu"
+            checked={form.tem_trofeu}
+            onChange={handleCheckbox}
+          />
 
-        <Checkbox
+          <Checkbox
             label="Premiação em dinheiro"
-            onChange={(e) => setPremioDinheiro(e.target.checked)}
-        />
+            name="tem_premiacao_financeira"
+            checked={form.tem_premiacao_financeira}
+            onChange={handleCheckbox}
+          />
 
-        {premioDinheiro && (
+          {form.tem_premiacao_financeira && (
             <Field
-            label="Valor monetário"
-            placeholder="Ex.: 500000"
-            type="number"
+              label="Valor monetário"
+              placeholder="Ex.: 500000"
+              type="number"
+              name="valor_premiacao"
+              value={form.valor_premiacao}
+              onChange={handleChange}
             />
-        )}
+          )}
 
-        <Checkbox
+          <Checkbox
             label="Garante vaga em outra competição"
-            onChange={(e) => setVagaOutra(e.target.checked)}
-        />
+            name="garante_vaga"
+            checked={form.garante_vaga}
+            onChange={handleCheckbox}
+          />
 
-        {vagaOutra && (
+          {form.garante_vaga && (
             <SelectField label="Competição garantida">
-            <option value="" disabled>
-                Selecione a competição
-            </option>
+              <option value="" disabled>Selecione (Em breve)</option>
             </SelectField>
-        )}
+          )}
         </div>
       </div>
 
-      {/* BOTÃO */}
       <div className="mt-6 flex justify-end">
         <button
           type="button"
@@ -154,84 +228,34 @@ export default function RegistroCompeticoes() {
   );
 }
 
-/* ---------- Componentes auxiliares ---------- */
+// --- COMPONENTES AUXILIARES (Field, SelectField, Checkbox) ---
 
-function Field({ label, placeholder, type = "text", disabled = false }) {
-  return (
-    <div>
-      <label className="block text-sm text-slate-300 font-medium mb-2">
-        {label}
-      </label>
-      <input
-        type={type}
-        placeholder={placeholder}
-        disabled={disabled}
-        className="
-          w-full bg-[#0f172a]
-          border border-slate-800
-          rounded-xl py-3 px-4
-          text-slate-200 placeholder:text-slate-600
-          focus:outline-none focus:border-emerald-500/60
-          focus:ring-1 focus:ring-emerald-500/20
-          disabled:opacity-40 disabled:cursor-not-allowed
-          transition
-        "
-      />
-    </div>
-  );
+function Field({ label, ...props }) {
+    return (
+      <div>
+        <label className="block text-sm text-slate-300 font-medium mb-2">{label}</label>
+        <input className="w-full bg-[#0f172a] border border-slate-800 rounded-xl py-3 px-4 text-slate-200 focus:outline-none focus:border-emerald-500/60" {...props} />
+      </div>
+    );
 }
 
 function SelectField({ label, children, ...props }) {
-  return (
-    <div className="relative">
-      <label className="block text-sm text-slate-300 font-medium mb-2">
-        {label}
-      </label>
-
-      <select
-        {...props}
-        className="
-          appearance-none w-full
-          bg-[#0f172a]
-          border border-slate-800
-          rounded-xl py-3 pl-4 pr-10
-          text-slate-200
-          focus:outline-none focus:border-emerald-500/60
-          focus:ring-1 focus:ring-emerald-500/20
-          transition
-        "
-      >
-        {children}
-      </select>
-
-      <ChevronDown className="w-4 h-4 text-slate-400 absolute right-4 top-[46px] pointer-events-none" />
-    </div>
-  );
+    return (
+        <div className="relative">
+            <label className="block text-sm text-slate-300 font-medium mb-2">{label}</label>
+            <select className="appearance-none w-full bg-[#0f172a] border border-slate-800 rounded-xl py-3 pl-4 pr-10 text-slate-200 focus:outline-none focus:border-emerald-500/60" {...props}>
+                {children}
+            </select>
+            <ChevronDown className="w-4 h-4 text-slate-400 absolute right-4 top-[46px] pointer-events-none" />
+        </div>
+    );
 }
 
-function Checkbox({ label, onChange }) {
-  return (
-    <label className="flex items-center gap-3 text-sm text-slate-300 cursor-pointer">
-      <input
-        type="checkbox"
-        onChange={onChange}
-        className="
-          appearance-none
-          w-5 h-5
-          rounded-md
-          border border-slate-600
-          bg-[#0f172a]
-          flex items-center justify-center
-          checked:bg-emerald-500
-          checked:border-emerald-500
-          checked:after:content-['✓']
-          checked:after:text-black
-          checked:after:text-sm
-          checked:after:font-bold
-          transition
-        "
-      />
-      {label}
-    </label>
-  );
+function Checkbox({ label, ...props }) {
+    return (
+      <label className="flex items-center gap-3 text-sm text-slate-300 cursor-pointer">
+        <input type="checkbox" className="appearance-none w-5 h-5 rounded-md border border-slate-600 bg-[#0f172a] checked:bg-emerald-500 checked:after:content-['✓'] checked:after:text-black flex items-center justify-center" {...props} />
+        {label}
+      </label>
+    );
 }

@@ -23,3 +23,10 @@ class JogadorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Jogador
         fields = '__all__'
+    
+from .models import Competicao
+
+class CompeticaoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Competicao
+        fields = '__all__'

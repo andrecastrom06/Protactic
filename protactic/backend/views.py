@@ -50,3 +50,11 @@ class JogadorViewSet(viewsets.ModelViewSet):
     queryset = Jogador.objects.all()
     serializer_class = JogadorSerializer
     permission_classes = [IsAuthenticated]
+
+from .models import Competicao
+from .serializers import CompeticaoSerializer
+
+class CompeticaoViewSet(viewsets.ModelViewSet):
+    queryset = Competicao.objects.all()
+    serializer_class = CompeticaoSerializer
+    permission_classes = [IsAuthenticated]
