@@ -58,3 +58,37 @@ class CompeticaoViewSet(viewsets.ModelViewSet):
     queryset = Competicao.objects.all()
     serializer_class = CompeticaoSerializer
     permission_classes = [IsAuthenticated]
+
+class BuscaGlobalView(APIView):
+    permission_classes = [IsAuthenticated] # Aberto para o autocomplete funcionar livremente
+
+    def get(self, request):
+        termo = request.query_params.get('q', '')
+        
+        if not termo or len(termo) < 2:
+            return Response([])
+
+        resultados = []
+
+        # 1. Busca Jogadores
+        jogadores = Jogador.objects.filter(nome__icontains=termo)[:3] # Pega top 3
+        s_jogadores = JogadorSerializer(jogadores, many=True).data
+        for item in s_jogadores:
+            item['tipo'] = 'JOGADOR' # Etiqueta para o Front saber a cor/ícone
+            resultados.append(item)
+
+        # 2. Busca Competições
+        competicoes = Competicao.objects.filter(nome__icontains=termo)[:3]
+        s_competicoes = CompeticaoSerializer(competicoes, many=True).data
+        for item in s_competicoes:
+            item['tipo'] = 'COMPETICAO'
+            resultados.append(item)
+
+        # 3. Busca Clubes (Adicionei esse bônus já que vi o model ali)
+        clubes = Clube.objects.filter(nome__icontains=termo)[:3]
+        s_clubes = ClubeSerializer(clubes, many=True).data
+        for item in s_clubes:
+            item['tipo'] = 'CLUBE'
+            resultados.append(item)
+
+        return Response(resultados)
