@@ -1,79 +1,86 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import axios from "axios";
+import Swal from 'sweetalert2';
 
 export default function RegistroCompeticoes() {
-  // Estado do formulário
   const [form, setForm] = useState({
-    nome: "",
-    tamanho: "",
-    localidade: "",
-    tipo_participantes: "",
-    divisao: "",
-    tipo_formato: "",
-    qtd_participantes: "",
-    tem_trofeu: false,
-    tem_premiacao_financeira: false,
-    valor_premiacao: "",
-    garante_vaga: false,
-    competicao_destino: null
+    nome: "", tamanho: "", localidade: "", tipo_participantes: "",
+    divisao: "", tipo_formato: "", qtd_participantes: "",
+    tem_trofeu: false, tem_premiacao_financeira: false,
+    valor_premiacao: "", garante_vaga: false, competicao_destino: null
   });
 
-  // Atualiza inputs de texto/select
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
   };
 
-  // Atualiza checkboxes
   const handleCheckbox = (e) => {
     const { name, checked } = e.target;
     setForm({ ...form, [name]: checked });
   };
 
-  // Envia para o Backend
   async function handleRegistrar() {
     try {
-      // 1. Tenta pegar o token do armazenamento local (ajuste a chave 'access' se você salvou com outro nome no login)
       const token = localStorage.getItem('token'); 
-
       if (!token) {
-        alert("Erro: Você não está logado!");
+        Swal.fire({
+            icon: 'warning',
+            title: 'Sessão inválida',
+            text: 'Você precisa estar logado.',
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            background: '#0f172a', color: '#e2e8f0'
+        });
         return;
       }
 
-      // 2. Configura o cabeçalho com o "Crachá" (Bearer Token)
       const config = {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+        headers: { Authorization: `Bearer ${token}` }
       };
 
-      // 3. Envia os dados + a configuração de segurança
       await axios.post("http://127.0.0.1:8000/competicoes/", form, config);
       
-      alert("Competição registrada com sucesso!");
+      Swal.fire({
+        title: 'Sucesso!',
+        text: 'Competição registrada.',
+        icon: 'success',
+        background: '#0f172a',
+        color: '#e2e8f0',
+        confirmButtonColor: '#10b981',
+      });
+
     } catch (error) {
       console.error(error);
       if (error.response && error.response.status === 401) {
-          alert("Sessão expirada ou inválida. Faça login novamente.");
+          Swal.fire({
+            icon: 'error',
+            title: 'Sessão Expirada',
+            text: 'Faça login novamente para continuar.',
+            background: '#0f172a', color: '#e2e8f0', confirmButtonColor: '#ef4444'
+          });
       } else {
-          alert("Erro ao registrar. Verifique o console.");
+          Swal.fire({
+            icon: 'error',
+            title: 'Erro!',
+            text: 'Não foi possível registrar a competição.',
+            toast: true, position: 'top-end',
+            background: '#0f172a', color: '#e2e8f0', showConfirmButton: false, timer: 4000
+          });
       }
     }
   }
 
-  // Lógica visual da localidade
   const labelLocalidade =
-    form.tamanho === "Continental"
-      ? "Continente"
-      : ["Nacional", "Regional", "Estadual"].includes(form.tamanho)
-      ? "País"
-      : "";
+    form.tamanho === "Continental" ? "Continente"
+      : ["Nacional", "Regional", "Estadual"].includes(form.tamanho) ? "País" : "";
 
   return (
     <div className="max-w-6xl">
-      <h1 className="text-3xl md:text-4xl font-semibold tracking-wide">
+       <h1 className="text-3xl md:text-4xl font-semibold tracking-wide">
         Registrar Competições
       </h1>
       <p className="text-sm text-slate-400 mt-2">
@@ -81,7 +88,6 @@ export default function RegistroCompeticoes() {
       </p>
 
       <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* COLUNA ESQUERDA */}
         <div className="lg:col-span-2 bg-[#0b1220] border border-slate-800 rounded-2xl p-5 space-y-4">
           
           <Field 
@@ -169,7 +175,6 @@ export default function RegistroCompeticoes() {
           </div>
         </div>
 
-        {/* COLUNA DIREITA */}
         <div className="bg-[#0b1220] border border-slate-800 rounded-2xl p-6 flex flex-col space-y-6">
           <h2 className="text-2xl md:text-3xl font-semibold text-slate-200 text-center">
             Premiação
@@ -227,8 +232,6 @@ export default function RegistroCompeticoes() {
     </div>
   );
 }
-
-// --- COMPONENTES AUXILIARES (Field, SelectField, Checkbox) ---
 
 function Field({ label, ...props }) {
     return (

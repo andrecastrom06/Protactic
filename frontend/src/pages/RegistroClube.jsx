@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
 import { ImagePlus, Plus, X } from "lucide-react";
 import { api } from "../services/api";
+import Swal from 'sweetalert2';
 
 export default function RegistroClube() {
-  // futuramente isso vem do backend
   const competicoesDisponiveis = useMemo(
     () => ["Copa Local", "Campeonato Estadual", "Liga Regional", "Torneio Amistoso"],
     []
@@ -11,12 +11,9 @@ export default function RegistroClube() {
 
   const [escudoPreview, setEscudoPreview] = useState(null);
   const [escudoFile, setEscudoFile] = useState(null);
-
   const [nomeClube, setNomeClube] = useState("");
   const [pais, setPais] = useState("");
   const [anoFundacao, setAnoFundacao] = useState("");
-
-  // multi-select “controlado”
   const [competicaoSelecionada, setCompeticaoSelecionada] = useState("");
   const [competicoes, setCompeticoes] = useState([]);
 
@@ -31,7 +28,6 @@ export default function RegistroClube() {
   function addCompeticao() {
     if (!competicaoSelecionada) return;
     if (competicoes.includes(competicaoSelecionada)) return;
-
     setCompeticoes((prev) => [...prev, competicaoSelecionada]);
     setCompeticaoSelecionada("");
   }
@@ -46,18 +42,25 @@ export default function RegistroClube() {
         formData.append("nome", nomeClube);
         formData.append("pais", pais);
         formData.append("ano_fundacao", anoFundacao);
-        
         if (escudoFile) {
             formData.append("escudo", escudoFile);
         }
 
         await api.post("/clubes/", formData, {
-            headers: {
-                "Content-Type": "multipart/form-data",
-            },
+            headers: { "Content-Type": "multipart/form-data" },
         });
 
-        alert("Clube registrado com sucesso!");
+        // ALERTA DE SUCESSO
+        Swal.fire({
+            title: 'Clube Criado!',
+            text: 'As informações do clube foram salvas.',
+            icon: 'success',
+            background: '#0f172a',
+            color: '#e2e8f0',
+            confirmButtonColor: '#10b981',
+            confirmButtonText: 'Ótimo'
+        });
+
         // Reset form
         setNomeClube("");
         setPais("");
@@ -68,13 +71,26 @@ export default function RegistroClube() {
 
     } catch (error) {
         console.error("Erro ao registrar clube:", error);
-        alert("Erro ao registrar clube. Verifique o console.");
+        
+        // ALERTA DE ERRO
+        Swal.fire({
+            icon: 'error',
+            title: 'Ops!',
+            text: 'Não foi possível registrar o clube. Verifique os dados.',
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 4000,
+            background: '#0f172a',
+            color: '#e2e8f0'
+        });
     }
   }
 
   return (
     <div className="max-w-5xl">
-      {/* Header padrão */}
+       {/* ... JSX INALTERADO ... */}
+       {/* Header padrão */}
       <h1 className="text-3xl md:text-4xl font-semibold tracking-wide">
         Registrar Clube
       </h1>
@@ -138,7 +154,6 @@ export default function RegistroClube() {
               type="number"
             />
 
-            {/* Competições (multi-select com botão +) */}
             <div>
               <label className="block text-sm text-slate-300 font-medium mb-2">
                 Competições
@@ -156,7 +171,6 @@ export default function RegistroClube() {
                     </span>
                 </div>
 
-                {/* Botão + (ainda sem funcionalidade real) */}
                 <button
                     type="button"
                     onClick={() => {}}
@@ -167,7 +181,6 @@ export default function RegistroClube() {
                 </button>
                 </div>
 
-              {/* Chips das competições adicionadas */}
               {competicoes.length > 0 && (
                 <div className="mt-3 flex flex-wrap gap-2">
                     {competicoes.map((c) => (
@@ -191,7 +204,6 @@ export default function RegistroClube() {
             </div>
           </div>
 
-          {/* Botão Registrar (funciona na UI) */}
           <div className="flex justify-end">
             <button
               type="button"
@@ -207,7 +219,6 @@ export default function RegistroClube() {
   );
 }
 
-/* ---------- Componentes auxiliares ---------- */
 function Field({ label, placeholder, type = "text", value, onChange }) {
   return (
     <div>

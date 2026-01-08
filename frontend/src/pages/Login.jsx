@@ -4,19 +4,35 @@ import { fetchNavigation } from "../services/navigation";
 import { User, Lock, Eye, EyeOff, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import logoImg from "../assets/logo-protactic.png";
+import Swal from 'sweetalert2';
+import withReactContent from 'sweetalert2-react-content';
+
+const MySwal = withReactContent(Swal);
 
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+
+  const Toast = MySwal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    background: '#0f172a', // Slate-900
+    color: '#e2e8f0',      // Slate-200
+    didOpen: (toast) => {
+      toast.addEventListener('mouseenter', Swal.stopTimer)
+      toast.addEventListener('mouseleave', Swal.resumeTimer)
+    }
+  });
   
   async function handleLogin(e) {
     e.preventDefault();
-    setError("");
     setLoading(true);
 
     try {
@@ -30,13 +46,21 @@ export default function Login() {
       localStorage.setItem("token", access);
       localStorage.setItem("user_type", user_type);
 
+      Toast.fire({
+        icon: 'success',
+        title: 'Login realizado com sucesso!'
+      });
+
       const nav = await fetchNavigation();
       console.log("NAV:", nav);
       navigate("/inicio", { replace: true });
       
     } catch (err) {
       console.error(err);
-      setError("Credenciais inválidas. Tente novamente.");
+      Toast.fire({
+        icon: 'error',
+        title: 'Credenciais inválidas ou erro no servidor.'
+      });
     } finally {
       setLoading(false);
     }
@@ -137,12 +161,6 @@ export default function Login() {
                 {loading ? "Entrando..." : "Entrar"}
                 {!loading && <ChevronRight className="h-5 w-5" />}
               </button>
-
-              {error && (
-                <div className="bg-red-500/10 border border-red-500/50 text-red-400 text-sm p-3 rounded text-center">
-                  {error}
-                </div>
-              )}
             </form>
           </div>
           <div className="text-center absolute bottom-4 text-[10px] text-slate-600 w-full lg:w-auto">

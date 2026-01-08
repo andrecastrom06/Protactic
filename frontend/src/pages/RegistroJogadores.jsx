@@ -1,20 +1,14 @@
 import { useMemo, useState, useEffect } from "react";
 import { ChevronDown, ImagePlus } from "lucide-react";
 import { api } from "../services/api";
+import Swal from 'sweetalert2';
 
 export default function RegistroJogadores() {
   const posicoes = useMemo(
     () => [
-      "Goleiro",
-      "Zagueiro",
-      "Lateral Esquerdo",
-      "Lateral Direito",
-      "Volante",
-      "Meio-campista",
-      "Meia Atacante",
-      "Ponta Esquerda",
-      "Ponta Direita",
-      "Centroavante",
+      "Goleiro", "Zagueiro", "Lateral Esquerdo", "Lateral Direito",
+      "Volante", "Meio-campista", "Meia Atacante",
+      "Ponta Esquerda", "Ponta Direita", "Centroavante",
     ],
     []
   );
@@ -26,15 +20,8 @@ export default function RegistroJogadores() {
   const [fotoFile, setFotoFile] = useState(null);
 
   const [formData, setFormData] = useState({
-    nome: "",
-    cpf: "",
-    idade: "",
-    peso: "",
-    altura: "",
-    nacionalidade: "",
-    clube: "", // ID do clube
-    posicao: "",
-    perna: "",
+    nome: "", cpf: "", idade: "", peso: "", altura: "",
+    nacionalidade: "", clube: "", posicao: "", perna: "",
   });
 
   useEffect(() => {
@@ -65,64 +52,58 @@ export default function RegistroJogadores() {
   async function handleRegistrar() {
     try {
       const data = new FormData();
-      data.append("nome", formData.nome);
-      data.append("cpf", formData.cpf);
-      data.append("idade", formData.idade);
-      data.append("peso", formData.peso);
-      data.append("altura", formData.altura);
-      data.append("nacionalidade", formData.nacionalidade);
-      data.append("clube", formData.clube);
-      data.append("posicao", formData.posicao);
-      data.append("perna", formData.perna);
-
-      if (fotoFile) {
-        data.append("foto", fotoFile);
-      }
+      Object.keys(formData).forEach(key => data.append(key, formData[key]));
+      if (fotoFile) data.append("foto", fotoFile);
 
       await api.post("/jogadores/", data, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
-      alert("Jogador registrado com sucesso!");
+      Swal.fire({
+        title: 'Registrado!',
+        text: 'O jogador foi cadastrado com sucesso.',
+        icon: 'success',
+        background: '#0f172a',
+        color: '#e2e8f0',
+        confirmButtonColor: '#10b981',
+        confirmButtonText: 'Continuar'
+      });
 
-      // Reset form
       setFormData({
-        nome: "",
-        cpf: "",
-        idade: "",
-        peso: "",
-        altura: "",
-        nacionalidade: "",
-        clube: "",
-        posicao: "",
-        perna: "",
+        nome: "", cpf: "", idade: "", peso: "", altura: "",
+        nacionalidade: "", clube: "", posicao: "", perna: "",
       });
       setFotoPreview(null);
       setFotoFile(null);
 
     } catch (error) {
       console.error("Erro ao registrar jogador:", error);
-      alert("Erro ao registrar jogador. Verifique os dados.");
+      
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro ao registrar',
+        text: 'Verifique se todos os campos estão preenchidos corretamente.',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 4000,
+        background: '#0f172a',
+        color: '#e2e8f0'
+      });
     }
   }
 
   return (
     <div className="max-w-5xl">
-      {/* Header padrão */}
-      <h1 className="text-3xl md:text-4xl font-semibold tracking-wide">
+       <h1 className="text-3xl md:text-4xl font-semibold tracking-wide">
         Registrar Jogadores
       </h1>
       <p className="text-sm text-slate-400 mt-2">
         Preencha os dados do atleta.
       </p>
 
-      {/* Conteúdo */}
       <div className="mt-8 grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-6">
-        {/* Coluna Esquerda */}
         <div className="bg-[#0b1220] border border-slate-800 rounded-2xl p-5">
-          {/* Foto */}
           <div className="flex flex-col items-center">
             <div className="w-40 h-40 rounded-full border-2 border-slate-700 overflow-hidden bg-[#0f172a] flex items-center justify-center">
               {fotoPreview ? (
@@ -141,7 +122,6 @@ export default function RegistroJogadores() {
               )}
             </div>
 
-            {/* Botão escolher da galeria */}
             <label className="mt-4 inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[#0f172a] border border-slate-800 text-slate-200 hover:bg-slate-800/40 transition cursor-pointer">
               Escolher da Galeria
               <input
@@ -153,7 +133,6 @@ export default function RegistroJogadores() {
             </label>
           </div>
 
-          {/* Inputs laterais: Idade/Peso/Altura */}
           <div className="mt-6 space-y-4">
             <Field
               label="Idade"
@@ -191,9 +170,7 @@ export default function RegistroJogadores() {
           </div>
         </div>
 
-        {/* Coluna Direita */}
         <div className="space-y-6">
-          {/* Top fields */}
           <div className="bg-[#0b1220] border border-slate-800 rounded-2xl p-5 space-y-4">
             <Field
               label="Nome do Jogador"
@@ -210,7 +187,6 @@ export default function RegistroJogadores() {
               onChange={handleInputChange}
             />
 
-            {/* Select Clube */}
             <SelectField
               label="Clube"
               name="clube"
@@ -234,7 +210,6 @@ export default function RegistroJogadores() {
             </SelectField>
           </div>
 
-          {/* Box Dados do Jogador */}
           <div className="bg-[#0b1220] border border-slate-800 rounded-2xl p-5">
             <div className="text-center">
               <div className="inline-flex px-4 py-2 rounded-xl bg-[#0f172a] border border-slate-800 text-slate-200 font-semibold">
@@ -243,7 +218,6 @@ export default function RegistroJogadores() {
             </div>
 
             <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
-              {/* Posição */}
               <SelectField
                 label="Posição"
                 name="posicao"
@@ -260,7 +234,6 @@ export default function RegistroJogadores() {
                 ))}
               </SelectField>
 
-              {/* Perna */}
               <SelectField
                 label="Perna"
                 name="perna"
@@ -284,7 +257,6 @@ export default function RegistroJogadores() {
             </div>
           </div>
 
-          {/* Botão Registrar */}
           <div className="flex justify-end">
             <button
               type="button"
@@ -299,8 +271,6 @@ export default function RegistroJogadores() {
     </div>
   );
 }
-
-/* ---------- Componentes auxiliares ---------- */
 
 function Field({ label, placeholder, type = "text", ...props }) {
   return (
