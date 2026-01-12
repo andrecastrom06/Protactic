@@ -77,3 +77,27 @@ class Jogador(models.Model):
 
     def __str__(self):
         return f"{self.nome} ({self.clube.nome})"
+    
+class Partida(models.Model):
+    competicao = models.ForeignKey(Competicao, on_delete=models.SET_NULL, null=True, blank=True)
+    mandante = models.ForeignKey(Clube, on_delete=models.CASCADE, related_name='partidas_mandante')
+    visitante = models.ForeignKey(Clube, on_delete=models.CASCADE, related_name='partidas_visitante')
+    data_hora = models.DateTimeField()
+    local = models.CharField(max_length=150, blank=True, null=True)
+    placar_mandante = models.IntegerField(default=0)
+    placar_visitante = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.mandante} {self.placar_mandante}x{self.placar_visitante} {self.visitante} ({self.data_hora.strftime('%d/%m/%Y')})"
+
+class Gol(models.Model):
+    partida = models.ForeignKey(Partida, on_delete=models.CASCADE, related_name='gols')
+    autor = models.ForeignKey(Jogador, on_delete=models.CASCADE, related_name='gols_marcados')
+    assistencia = models.ForeignKey(Jogador, on_delete=models.SET_NULL, null=True, blank=True, related_name='assistencias_feitas')
+    minuto = models.IntegerField(null=True, blank=True, help_text="Minuto do gol")
+
+    def __str__(self):
+        desc = f"Gol de {self.autor.nome}"
+        if self.assistencia:
+            desc += f" (Ass: {self.assistencia.nome})"
+        return desc

@@ -92,3 +92,16 @@ class BuscaGlobalView(APIView):
             resultados.append(item)
 
         return Response(resultados)
+    
+from .models import Partida, Gol
+from .serializers import PartidaSerializer, GolSerializer
+
+class PartidaViewSet(viewsets.ModelViewSet):
+    queryset = Partida.objects.all().order_by('-data_hora') 
+    serializer_class = PartidaSerializer
+    permission_classes = [IsAuthenticated]
+
+class GolViewSet(viewsets.ModelViewSet):
+    queryset = Gol.objects.all()
+    serializer_class = GolSerializer
+    permission_classes = [IsAuthenticated]
