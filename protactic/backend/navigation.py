@@ -11,10 +11,17 @@ SUPERUSER_ONLY = [
 ]
 
 
+COACH_ITEMS = [
+    {"key": "listar_jogadores", "label": "Listar Jogadores", "path": "/listar-jogadores", "icon": "users"},
+]
+
 def build_navigation_for_user(user):
     items = list(BASE_ITEMS)
 
     if user.is_superuser:
         items.extend(SUPERUSER_ONLY)
+    
+    if user.user_type == 'TREINADOR':
+        items.extend(COACH_ITEMS)
 
     return items

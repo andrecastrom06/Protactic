@@ -11,6 +11,8 @@ class User(AbstractUser):
         max_length=10,
         choices=USER_TYPE_CHOICES
     )
+    
+    clube = models.ForeignKey('Clube', on_delete=models.SET_NULL, null=True, blank=True)
 
 class Clube(models.Model):
     nome = models.CharField(max_length=100)

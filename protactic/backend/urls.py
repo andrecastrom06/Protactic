@@ -4,7 +4,7 @@ from .views import LoginView, NavigationView, ClubeViewSet, JogadorViewSet, Comp
 
 router = DefaultRouter()
 router.register(r'clubes', ClubeViewSet)
-router.register(r'jogadores', JogadorViewSet)
+router.register(r'jogadores', JogadorViewSet, basename='jogador')
 router.register(r'competicoes', CompeticaoViewSet)
 router.register(r'partidas', PartidaViewSet)
 router.register(r'gols', GolViewSet)

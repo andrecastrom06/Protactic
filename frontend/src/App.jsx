@@ -12,7 +12,8 @@ import Elenco from "./pages/Elenco";
 import Adversario from "./pages/Adversario";
 import TempoReal from "./pages/TempoReal";
 import Clube from "./pages/Clube";
-import CriarPartida from "./pages/CriarPartida"; 
+import CriarPartida from "./pages/CriarPartida";
+import ListarJogadores from "./pages/ListarJogadores";
 
 import "./index.css"
 
@@ -41,6 +42,7 @@ export default function App() {
           <Route path="/registro/jogadores" element={<RegistroJogadores />} />
           <Route path="/registro/clube" element={<RegistroClube />} />
           <Route path="/registro/competicoes" element={<RegistroCompeticoes />} />
+          <Route path="/listar-jogadores" element={<ListarJogadores />} />
           <Route path="/registro/partidas" element={<CriarPartida />} />
         </Route>
 

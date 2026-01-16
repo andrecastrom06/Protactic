@@ -47,9 +47,14 @@ from .models import Jogador
 from .serializers import JogadorSerializer
 
 class JogadorViewSet(viewsets.ModelViewSet):
-    queryset = Jogador.objects.all()
     serializer_class = JogadorSerializer
     permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.user_type == 'TREINADOR' and user.clube:
+            return Jogador.objects.filter(clube=user.clube)
+        return Jogador.objects.all()
 
 from .models import Competicao
 from .serializers import CompeticaoSerializer
